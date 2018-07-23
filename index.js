@@ -1,8 +1,14 @@
 import React from 'react';
 import { AppRegistry } from 'react-native';
 import App from './src/App';
-import { createStore, combineReducers, applyMiddleware } from "redux";
+import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import { Provider } from 'react-redux';
+import createSagaMiddleware from "redux-saga";
+
+import rootSaga from './Saga';
+
+// create the saga middleware
+const sagaMiddleware = createSagaMiddleware();
 
 const initialState={
     result : 15000,
@@ -46,7 +52,13 @@ const employeeReducer = (state=initialState,action) => {
             break;
 
         case "SUBTRACT" :
-            /*state-=action.payload;*/
+            state={
+                /*result: state.result-=action.payload,
+                value: state.value*/
+                ...state,
+                result: state.result-=action.payload,
+                value: [...state.value,action.payload]
+            };
             break;
 
         default:
@@ -59,7 +71,8 @@ const myloger = (store) => (next) => (action) => {
     next(action);
 };
 
-const store = createStore(combineReducers({emp: employeeReducer,user: userReducer}),{},applyMiddleware(myloger));
+const store = createStore(combineReducers({emp: employeeReducer,user: userReducer}),{},
+    compose(applyMiddleware(sagaMiddleware, myloger)));
 
 store.subscribe(() => {
         console.log("Update Store : ",store.getState());
@@ -70,13 +83,9 @@ store.dispatch({
     type: 'ADD',
     payload : 100
 });
-/*store.dispatch({
-    type: 'setName',
-    payload : 'Rename'
-});store.dispatch({
-    type: 'setAge',
-    payload : 21
-});*/
+
+// run the saga
+sagaMiddleware.run(rootSaga);
 
 const Start = () =>
     <Provider store={store}>
