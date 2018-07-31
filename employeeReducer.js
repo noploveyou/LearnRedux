@@ -1,6 +1,9 @@
-import initialState from './initalState';
+const initialState={
+    result : 15000,
+    value : []
+};
 
-const reducer = (state=initialState,action) => {
+const employeeReducer = (state=initialState, action) => {
     switch (action.type){
         case "ADD" :
             /*state+=action.payload;*/
@@ -13,16 +16,19 @@ const reducer = (state=initialState,action) => {
             };
             break;
 
-        case "CREATE" :
+        case "SUBTRACT" :
             state={
-                ...state
+                /*result: state.result-=action.payload,
+                value: state.value*/
+                ...state,
+                result: state.result-=action.payload,
+                value: [...state.value,action.payload]
             };
             break;
 
         default:
-
     }
     return state;
 };
 
-export default reducer;
+export default employeeReducer;
